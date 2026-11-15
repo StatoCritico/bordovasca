@@ -1,0 +1,6 @@
+# Fine riga LF per tutti i file di testo (niente avvisi CRLF su Windows, stessi file per Cloudflare e per il PC)
+* text=auto eol=lf
+*.woff2 binary
+*.jpg binary
+*.jpeg binary
+*.png binary
