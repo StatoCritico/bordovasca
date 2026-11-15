@@ -1,0 +1,10 @@
+// Bordo Vasca su Cloudflare Workers (file statici): Cloudflare esegue «npm run build» e pubblica la cartella dist.
+// Il worker delle email ha la sua configurazione in email-worker/wrangler.toml: è un'altra cosa.
+{
+  "name": "bordovasca",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}
