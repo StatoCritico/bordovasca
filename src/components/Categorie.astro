@@ -1,0 +1,16 @@
+---
+import { categorieUsate } from '../lib/contenuti';
+interface Props { attiva?: string }
+const { attiva } = Astro.props;
+const cats = await categorieUsate();
+---
+{cats.length > 0 && (
+  <nav class="categorie" aria-label="Categorie dei pensieri">
+    <ul class="chips">
+      <li><a class="chip" href="/pensieri/" aria-current={!attiva ? 'page' : undefined}>Tutti</a></li>
+      {cats.map((c) => (
+        <li><a class="chip" href={`/pensieri/categoria/${c.id}/`} aria-current={attiva === c.id ? 'page' : undefined}>{c.data.nome} <span class="conteggio">{c.conteggio}</span></a></li>
+      ))}
+    </ul>
+  </nav>
+)}

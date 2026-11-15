@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import VoceArticolo from '../../components/VoceArticolo.astro';
+import CategorieArticoli from '../../components/CategorieArticoli.astro';
+import { articoli } from '../../lib/contenuti';
+const as = await articoli();
+---
+<Base pagina="articoli" titolo="Articoli" descrizione="Articoli tecnici sul mondo delle piscine.">
+  <header class="intestazione">
+    <h1>Articoli</h1>
+    <p class="intro">Approfondimenti tecnici su progettazione, impianti, acqua e gestione delle piscine, e qualche storia di famiglia.</p>
+  </header>
+  <CategorieArticoli />
+  {as.length
+    ? <div class="elenco elenco-articoli">{as.map((a) => <VoceArticolo articolo={a} />)}</div>
+    : <p class="vuoto">Il primo articolo è in preparazione.</p>}
+</Base>

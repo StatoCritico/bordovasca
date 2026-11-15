@@ -1,0 +1,41 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { articoli, impostazioni, nomeCategoria, dataEstesa, dataIso, estratto, minutiLettura } from '../../lib/contenuti';
+
+export async function getStaticPaths() {
+  const as = await articoli();
+  return as.map((a, i) => ({ params: { id: a.id }, props: { a, prec: as[i + 1], succ: as[i - 1] } }));
+}
+const { a, prec, succ } = Astro.props;
+const { Content } = await render(a);
+const sito = await impostazioni();
+const nomeCat = await nomeCategoria(a.data.categoria);
+---
+<Base pagina="articolo" titolo={a.data.titolo} descrizione={a.data.sommario || estratto(a.body, 160)} immagine={a.data.immagine} tipo="article">
+  <article class="scheda scheda-articolo">
+    <header class="intestazione">
+      <p class="meta">
+        <time datetime={dataIso(a.data.data)}>{dataEstesa(a.data.data)}</time>
+        <a class="chip" href={`/articoli/categoria/${a.data.categoria}/`}>{nomeCat}</a>
+        <span class="autore">{sito.autore}</span>
+        <span class="lettura">{minutiLettura(a.body)} min di lettura</span>
+        {a.data.bozza && <span class="bozza">bozza</span>}
+      </p>
+      {a.data.serie && <p class="serie">{a.data.serie}</p>}
+      <h1>{a.data.titolo}</h1>
+      {a.data.sommario && <p class="sommario">{a.data.sommario}</p>}
+    </header>
+    {a.data.immagine && (
+      <figure class="copertina">
+        <img src={a.data.immagine} alt={a.data.didascalia || ''} />
+        {a.data.didascalia && <figcaption>{a.data.didascalia}</figcaption>}
+      </figure>
+    )}
+    <div class="testo"><Content /></div>
+  </article>
+  <nav class="navigazione" aria-label="Altri articoli">
+    {prec ? <a class="prec" href={`/articoli/${prec.id}/`}><span class="dir">Precedente</span> {prec.data.titolo}</a> : <span class="prec"></span>}
+    {succ ? <a class="succ" href={`/articoli/${succ.id}/`}><span class="dir">Successivo</span> {succ.data.titolo}</a> : <span class="succ"></span>}
+  </nav>
+</Base>

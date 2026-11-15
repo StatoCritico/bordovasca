@@ -1,0 +1,17 @@
+---
+import Base from '../../layouts/Base.astro';
+import VocePensiero from '../../components/VocePensiero.astro';
+import Categorie from '../../components/Categorie.astro';
+import { pensieri } from '../../lib/contenuti';
+const ps = await pensieri();
+---
+<Base pagina="pensieri" titolo="Pensieri" descrizione="Pensieri brevi dal bordo vasca, divisi per categoria.">
+  <header class="intestazione">
+    <h1>Pensieri</h1>
+    <p class="intro">Riflessioni brevi, appunti di cantiere, cose da sapere. Scegli una categoria:</p>
+  </header>
+  <Categorie />
+  {ps.length
+    ? <div class="elenco elenco-pensieri">{ps.map((p) => <VocePensiero pensiero={p} />)}</div>
+    : <p class="vuoto">Ancora nessun pensiero.</p>}
+</Base>

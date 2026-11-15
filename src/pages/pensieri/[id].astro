@@ -1,0 +1,30 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { pensieri, nomeCategoria, dataEstesa, dataIso, estratto } from '../../lib/contenuti';
+
+export async function getStaticPaths() {
+  const ps = await pensieri();
+  return ps.map((p, i) => ({ params: { id: p.id }, props: { p, prec: ps[i + 1], succ: ps[i - 1] } }));
+}
+const { p, prec, succ } = Astro.props;
+const { Content } = await render(p);
+const nomeCat = await nomeCategoria(p.data.categoria);
+---
+<Base pagina="pensiero" titolo={p.data.titolo} descrizione={estratto(p.body, 160)} tipo="article">
+  <article class="scheda scheda-pensiero">
+    <header class="intestazione">
+      <p class="meta">
+        <time datetime={dataIso(p.data.data)}>{dataEstesa(p.data.data)}</time>
+        <a class="chip" href={`/pensieri/categoria/${p.data.categoria}/`}>{nomeCat}</a>
+        {p.data.bozza && <span class="bozza">bozza</span>}
+      </p>
+      <h1>{p.data.titolo}</h1>
+    </header>
+    <div class="testo"><Content /></div>
+  </article>
+  <nav class="navigazione" aria-label="Altri pensieri">
+    {prec ? <a class="prec" href={`/pensieri/${prec.id}/`}><span class="dir">Precedente</span> {prec.data.titolo}</a> : <span class="prec"></span>}
+    {succ ? <a class="succ" href={`/pensieri/${succ.id}/`}><span class="dir">Successivo</span> {succ.data.titolo}</a> : <span class="succ"></span>}
+  </nav>
+</Base>

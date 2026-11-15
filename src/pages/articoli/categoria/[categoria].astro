@@ -1,0 +1,25 @@
+---
+import Base from '../../../layouts/Base.astro';
+import VoceArticolo from '../../../components/VoceArticolo.astro';
+import CategorieArticoli from '../../../components/CategorieArticoli.astro';
+import { categorieArticoli, articoli } from '../../../lib/contenuti';
+
+export async function getStaticPaths() {
+  const [cats, as] = await Promise.all([categorieArticoli(), articoli()]);
+  return cats.map((c) => ({
+    params: { categoria: c.id },
+    props: { nome: c.data.nome, descrizione: c.data.descrizione, elenco: as.filter((a) => a.data.categoria === c.id) },
+  }));
+}
+const { categoria } = Astro.params;
+const { nome, descrizione, elenco } = Astro.props;
+---
+<Base pagina="categoria" titolo={`Articoli: ${nome}`} descrizione={descrizione}>
+  <header class="intestazione">
+    <p class="sopratitolo"><a href="/articoli/">Articoli</a></p>
+    <h1>{nome}</h1>
+    {descrizione && <p class="intro">{descrizione}</p>}
+  </header>
+  <CategorieArticoli attiva={categoria} />
+  <div class="elenco elenco-articoli">{elenco.map((a) => <VoceArticolo articolo={a} />)}</div>
+</Base>

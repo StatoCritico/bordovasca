@@ -1,0 +1,23 @@
+{
+  "name": "bordovasca-email",
+  "version": "1.0.0",
+  "description": "Pubblicazione dei pensieri di Bordo Vasca per email",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node --import ./test/registra.mjs --test test/*.test.js",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "mimetext": "^3.0.28",
+    "postal-mime": "^4.2.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.162.0"
+  },
+  "private": true,
+  "type": "module"
+}

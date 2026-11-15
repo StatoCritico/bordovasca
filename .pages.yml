@@ -1,0 +1,172 @@
+# Configurazione dell'editor Pages CMS (https://pagescms.org).
+# Chi è invitato via email (collaboratore) vede queste voci e può scrivere, ma non può modificare questo file.
+
+media:
+  - name: immagini
+    label: Immagini
+    input: public/media
+    output: /media
+    rename: safe
+    extensions: [jpg, jpeg, png, webp, gif]
+
+content:
+  - name: pensieri
+    label: Pensieri
+    type: collection
+    path: src/content/pensieri
+    filename: "{year}-{month}-{day}-{primary}.md"
+    view:
+      fields: [titolo, data, categoria, bozza]
+      primary: titolo
+      sort: [data, titolo]
+      default:
+        sort: data
+        order: desc
+    fields:
+      - name: titolo
+        label: Titolo
+        type: string
+        required: true
+      - name: data
+        label: Data
+        type: date
+        options:
+          format: yyyy-MM-dd
+      - name: categoria
+        label: Categoria
+        type: reference
+        required: true
+        description: Scegli l'argomento. Per una categoria nuova usa la voce «Categorie».
+        options:
+          collection: categorie
+          search: nome
+          label: "{nome}"
+          value: "{path}"
+      - name: bozza
+        label: Bozza (non pubblicare ancora)
+        type: boolean
+      - name: body
+        label: Testo
+        type: rich-text
+        options:
+          format: markdown
+          media: immagini
+          path: public/media/pensieri
+
+  - name: articoli
+    label: Articoli
+    type: collection
+    path: src/content/articoli
+    filename: "{year}-{month}-{day}-{primary}.md"
+    view:
+      fields: [titolo, data, bozza]
+      primary: titolo
+      sort: [data, titolo]
+      default:
+        sort: data
+        order: desc
+    fields:
+      - name: titolo
+        label: Titolo
+        type: string
+        required: true
+      - name: data
+        label: Data
+        type: date
+        options:
+          format: yyyy-MM-dd
+      - name: sommario
+        label: Sommario
+        type: text
+        description: Due righe che riassumono l'articolo (compaiono nell'elenco).
+      - name: categoria
+        label: Categoria
+        type: reference
+        required: true
+        options:
+          collection: categorie
+          search: nome
+          label: "{nome}"
+          value: "{path}"
+      - name: serie
+        label: Serie (facoltativa, es. «La famiglia nelle guerre mondiali»)
+        type: string
+      - name: immagine
+        label: Immagine di copertina
+        type: image
+        options:
+          media: immagini
+          path: public/media/articoli
+      - name: didascalia
+        label: Didascalia della copertina
+        type: string
+      - name: bozza
+        label: Bozza (non pubblicare ancora)
+        type: boolean
+      - name: body
+        label: Testo
+        type: rich-text
+        options:
+          format: markdown
+          media: immagini
+          path: public/media/articoli
+
+  - name: categorie
+    label: Categorie
+    type: collection
+    path: src/content/categorie
+    filename: "{primary}.md"
+    view:
+      fields: [nome, ordine]
+      primary: nome
+      default:
+        sort: ordine
+        order: asc
+    fields:
+      - name: nome
+        label: Nome
+        type: string
+        required: true
+      - name: descrizione
+        label: Descrizione
+        type: string
+      - name: ordine
+        label: Posizione nell'elenco (numero più basso = prima)
+        type: number
+
+  - name: chi-sono
+    label: Pagina «Chi sono»
+    type: file
+    path: src/content/pagine/chi-sono.md
+    fields:
+      - name: titolo
+        label: Titolo
+        type: string
+      - name: body
+        label: Testo
+        type: rich-text
+        options:
+          format: markdown
+          media: immagini
+          path: public/media
+
+  - name: impostazioni
+    label: Impostazioni del sito
+    type: file
+    path: src/content/impostazioni.json
+    fields:
+      - name: titolo
+        label: Nome del blog
+        type: string
+      - name: sottotitolo
+        label: Sottotitolo
+        type: string
+      - name: autore
+        label: Autore
+        type: string
+      - name: presentazione
+        label: Presentazione (in alto nella pagina iniziale)
+        type: text
+      - name: email_contatti
+        label: Email pubblica per i contatti (vuoto = nessun link)
+        type: string

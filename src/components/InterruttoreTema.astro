@@ -1,0 +1,40 @@
+---
+// Pulsante yin/yang nel menu, a destra di «Chi sono» (prima era in basso a destra): passa da chiaro a scuro e viceversa.
+// Funziona con qualsiasi tema.css: lo script in Base.astro accende o spegne le regole
+// @media (prefers-color-scheme: dark) del foglio di stile. La scelta resta nel browser (localStorage).
+// Lo stile qui sotto ha specificità zero (:where): tema.css può ridisegnare .interruttore-tema.
+---
+<button class="interruttore-tema" type="button" aria-label="Passa al tema scuro" title="Chiaro / scuro" hidden>
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <circle cx="50" cy="50" r="47" class="yy-chiaro" />
+    <path class="yy-scuro" d="M50 3a47 47 0 0 1 0 94a23.5 23.5 0 0 1 0-47a23.5 23.5 0 0 0 0-47z" />
+    <circle cx="50" cy="26.5" r="7" class="yy-scuro" />
+    <circle cx="50" cy="73.5" r="7" class="yy-chiaro" />
+    <circle cx="50" cy="50" r="47" fill="none" class="yy-bordo" />
+  </svg>
+</button>
+<style is:inline>
+  :where(.interruttore-tema) {
+    flex: none; align-self: center; margin-left: .35rem; display: inline-flex;
+    width: 1.6rem; height: 1.6rem; padding: 0; border-radius: 50%;
+    border: 0; background: transparent; color: inherit; cursor: pointer; line-height: 0;
+  }
+  :where(.interruttore-tema) svg { width: 100%; height: 100%; transition: transform .4s ease; }
+  :where(.interruttore-tema):hover svg { transform: rotate(180deg); }
+  /* colori fissi bianco/nero: il simbolo resta riconoscibile su qualsiasi testata */
+  :where(.interruttore-tema) .yy-chiaro { fill: #fff; }
+  :where(.interruttore-tema) .yy-scuro { fill: #111; }
+  :where(.interruttore-tema) .yy-bordo { stroke: currentColor; stroke-width: 5; }
+  @media (prefers-reduced-motion: reduce) { :where(.interruttore-tema) svg { transition: none; } }
+  @media print { :where(.interruttore-tema) { display: none; } }
+</style>
+<script is:inline>
+  (function () {
+    var bt = document.querySelector('.interruttore-tema');
+    if (!bt || !window.bvTema) return;
+    function etichetta() { bt.setAttribute('aria-label', window.bvTema.scuro() ? 'Passa al tema chiaro' : 'Passa al tema scuro'); }
+    bt.hidden = false;
+    etichetta();
+    bt.addEventListener('click', function () { window.bvTema.imposta(window.bvTema.scuro() ? 'chiaro' : 'scuro'); etichetta(); });
+  })();
+</script>

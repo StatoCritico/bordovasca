@@ -1,0 +1,15 @@
+---
+import { dataEstesa, dataIso, estratto, nomeCategoria, type Pensiero } from '../lib/contenuti';
+interface Props { pensiero: Pensiero }
+const { pensiero: p } = Astro.props;
+const nomeCat = await nomeCategoria(p.data.categoria);
+---
+<article class="voce voce-pensiero">
+  <p class="meta">
+    <time datetime={dataIso(p.data.data)}>{dataEstesa(p.data.data)}</time>
+    <a class="chip" href={`/pensieri/categoria/${p.data.categoria}/`}>{nomeCat}</a>
+    {p.data.bozza && <span class="bozza">bozza</span>}
+  </p>
+  <h3 class="voce-titolo"><a href={`/pensieri/${p.id}/`}>{p.data.titolo}</a></h3>
+  <p class="voce-estratto">{estratto(p.body, 220)}</p>
+</article>

@@ -1,0 +1,25 @@
+---
+import Base from '../../../layouts/Base.astro';
+import VocePensiero from '../../../components/VocePensiero.astro';
+import Categorie from '../../../components/Categorie.astro';
+import { categorieUsate, pensieri } from '../../../lib/contenuti';
+
+export async function getStaticPaths() {
+  const [cats, ps] = await Promise.all([categorieUsate(), pensieri()]);
+  return cats.map((c) => ({
+    params: { categoria: c.id },
+    props: { nome: c.data.nome, descrizione: c.data.descrizione, elenco: ps.filter((p) => p.data.categoria === c.id) },
+  }));
+}
+const { categoria } = Astro.params;
+const { nome, descrizione, elenco } = Astro.props;
+---
+<Base pagina="categoria" titolo={`Pensieri: ${nome}`} descrizione={descrizione}>
+  <header class="intestazione">
+    <p class="sopratitolo"><a href="/pensieri/">Pensieri</a></p>
+    <h1>{nome}</h1>
+    {descrizione && <p class="intro">{descrizione}</p>}
+  </header>
+  <Categorie attiva={categoria} />
+  <div class="elenco elenco-pensieri">{elenco.map((p) => <VocePensiero pensiero={p} />)}</div>
+</Base>

@@ -1,0 +1,112 @@
+---
+// Struttura comune di tutte le pagine. Qui c'è solo HTML: TUTTO l'aspetto sta in public/tema.css
+// (vedi design/CONTRATTO_CSS.md). Le classi usate qui e nei componenti sono il «contratto» con il tema.
+import Logo from '../components/Logo.astro';
+import InterruttoreTema from '../components/InterruttoreTema.astro';
+import { impostazioni } from '../lib/contenuti';
+
+interface Props {
+  /** home | pensieri | categoria | pensiero | articoli | articolo | famiglia | pagina | errore */
+  pagina: string;
+  titolo?: string;
+  descrizione?: string;
+  immagine?: string;
+  tipo?: 'website' | 'article';
+}
+const { pagina, titolo, descrizione, immagine, tipo = 'website' } = Astro.props;
+const sito = await impostazioni();
+const titoloPagina = titolo ? `${titolo} · ${sito.titolo}` : `${sito.titolo} – ${sito.sottotitolo}`;
+const desc = descrizione || sito.presentazione;
+const canonico = new URL(Astro.url.pathname, Astro.site);
+const img = immagine ? new URL(immagine, Astro.site).href : undefined;
+const percorso = Astro.url.pathname;
+const attivo = (p: string) => (percorso === p || percorso.startsWith(p + '/') ? 'page' : undefined);
+const anno = new Date().getFullYear();
+// Cambia a ogni pubblicazione: il browser e Cloudflare prendono subito il tema.css nuovo.
+const versioneTema = import.meta.env.DEV ? '' : `?v=${Date.now().toString(36)}`;
+---
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titoloPagina}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonico} />
+    <link rel="stylesheet" href={`/tema.css${versioneTema}`} />
+    <script is:inline>
+      // Chiaro/scuro scelto dal visitatore (pulsante yin/yang). Gira dopo il caricamento di tema.css e prima
+      // del disegno della pagina: accende o spegne le regole @media (prefers-color-scheme: dark) del tema.
+      // Predefinito: SCURO (decisione del 15/11/2026), finché il visitatore non sceglie il chiaro.
+      (function () {
+        var CHIAVE = 'bordovasca-tema';
+        var PREDEFINITO = 'scuro';
+        function scelta() { var s = null; try { s = localStorage.getItem(CHIAVE); } catch (e) {} return s || PREDEFINITO; }
+        function scuro() { return scelta() === 'scuro'; }
+        function applica() {
+          var forza = scelta();
+          for (var i = 0; i < document.styleSheets.length; i++) {
+            var regole; try { regole = document.styleSheets[i].cssRules; } catch (e) { continue; }
+            for (var j = 0; j < regole.length; j++) {
+              var r = regole[j];
+              if (!r.media) continue;
+              if (r.__originale === undefined) {
+                if (!/prefers-color-scheme:\s*dark/.test(r.media.mediaText)) continue;
+                r.__originale = r.media.mediaText;
+              }
+              r.media.mediaText = forza === 'scuro' ? 'all' : forza === 'chiaro' ? 'not all' : r.__originale;
+            }
+          }
+          document.documentElement.style.colorScheme = forza ? (forza === 'scuro' ? 'dark' : 'light') : '';
+          document.documentElement.setAttribute('data-tema', scuro() ? 'scuro' : 'chiaro');
+        }
+        window.bvTema = {
+          scuro: scuro,
+          imposta: function (t) { try { localStorage.setItem(CHIAVE, t); } catch (e) {} applica(); },
+        };
+        applica();
+      })();
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={sito.titolo} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:site_name" content={sito.titolo} />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:type" content={tipo} />
+    <meta property="og:title" content={titolo ?? sito.titolo} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonico} />
+    {img && <meta property="og:image" content={img} />}
+    <meta name="author" content={sito.autore} />
+  </head>
+  <body data-pagina={pagina}>
+    <a class="salta" href="#contenuto">Vai al contenuto</a>
+    <header class="testata">
+      <div class="contenitore">
+        <a class="marchio" href="/" aria-label={`${sito.titolo}, pagina iniziale`}>
+          <span class="nome"><Logo /><span class="nome-testo">{sito.titolo}</span></span>
+          <span class="motto">{sito.sottotitolo}</span>
+        </a>
+        <nav class="menu" aria-label="Menu principale">
+          <a href="/pensieri/" aria-current={attivo('/pensieri')}>Pensieri</a>
+          <a href="/articoli/" aria-current={attivo('/articoli')}>Articoli</a>
+          <a href="/di-famiglia/" aria-current={attivo('/di-famiglia')}>Di famiglia</a>
+          <a href="/chi-sono/" aria-current={attivo('/chi-sono')}>Chi sono</a>
+          <InterruttoreTema />
+        </nav>
+      </div>
+    </header>
+    <div class="onda" aria-hidden="true"></div>
+    <main id="contenuto" class="principale">
+      <div class="contenitore">
+        <slot />
+      </div>
+    </main>
+    <footer class="piede">
+      <div class="contenitore">
+        <p>© {anno} {sito.autore} · {sito.titolo}{sito.email_contatti && <> · <a href={`mailto:${sito.email_contatti}`}>Scrivimi</a></>}</p>
+        <p><a href="/rss.xml">RSS</a> · Ospitato da <a href="https://statocritico.it">Stato Critico</a> · Nessun cookie e nessun tracciamento.</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+---
+import { categorieArticoli } from '../lib/contenuti';
+interface Props { attiva?: string }
+const { attiva } = Astro.props;
+const cats = await categorieArticoli();
+---
+{cats.length > 0 && (
+  <nav class="categorie" aria-label="Categorie degli articoli">
+    <ul class="chips">
+      <li><a class="chip" href="/articoli/" aria-current={!attiva ? 'page' : undefined}>Tutti</a></li>
+      {cats.map((c) => (
+        <li><a class="chip" href={`/articoli/categoria/${c.id}/`} aria-current={attiva === c.id ? 'page' : undefined}>{c.data.nome} <span class="conteggio">{c.conteggio}</span></a></li>
+      ))}
+    </ul>
+  </nav>
+)}

@@ -1,0 +1,13 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+const pagina = await getEntry('pagine', 'chi-sono');
+if (!pagina) throw new Error('Manca src/content/pagine/chi-sono.md');
+const { Content } = await render(pagina);
+---
+<Base pagina="pagina" titolo={pagina.data.titolo}>
+  <article class="scheda scheda-pagina">
+    <header class="intestazione"><h1>{pagina.data.titolo}</h1></header>
+    <div class="testo"><Content /></div>
+  </article>
+</Base>

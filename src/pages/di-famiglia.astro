@@ -1,0 +1,32 @@
+---
+// Voce di menu «Di famiglia»: tutti i pensieri e gli articoli di quella categoria.
+import { getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import VocePensiero from '../components/VocePensiero.astro';
+import VoceArticolo from '../components/VoceArticolo.astro';
+import { pensieri, articoli, CATEGORIA_FAMIGLIA } from '../lib/contenuti';
+const cat = await getEntry('categorie', CATEGORIA_FAMIGLIA);
+const nome = cat?.data.nome ?? 'Di famiglia';
+const descrizione = cat?.data.descrizione;
+const as = (await articoli()).filter((a) => a.data.categoria === CATEGORIA_FAMIGLIA);
+const ps = (await pensieri()).filter((p) => p.data.categoria === CATEGORIA_FAMIGLIA);
+---
+<Base pagina="famiglia" titolo={nome} descrizione={descrizione}>
+  <header class="intestazione">
+    <h1>{nome}</h1>
+    {descrizione && <p class="intro">{descrizione}</p>}
+  </header>
+  {as.length > 0 && (
+    <section class="sezione sezione-articoli" aria-labelledby="t-art">
+      <h2 class="etichetta" id="t-art">Articoli</h2>
+      <div class="elenco elenco-articoli">{as.map((a) => <VoceArticolo articolo={a} />)}</div>
+    </section>
+  )}
+  {ps.length > 0 && (
+    <section class="sezione sezione-pensieri" aria-labelledby="t-pen">
+      <h2 class="etichetta" id="t-pen">Pensieri</h2>
+      <div class="elenco elenco-pensieri">{ps.map((p) => <VocePensiero pensiero={p} />)}</div>
+    </section>
+  )}
+  {as.length + ps.length === 0 && <p class="vuoto">Presto le prime storie.</p>}
+</Base>

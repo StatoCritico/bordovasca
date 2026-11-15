@@ -1,0 +1,240 @@
+/* ==========================================================================
+   Bordo Vasca – tema.css · Direzione C «Corsia»
+   La vasca vista dall'alto: fondo a piastrelle, linee di corsia con la T,
+   galleggianti del separacorsie. Testo in Atkinson Hyperlegible (pensato per
+   chi vede meno bene) e titoli in Archivo (entrambi SIL OFL 1.1).
+   Font da mettere in public/font/: atkinson-400.woff2, atkinson-400i.woff2,
+   atkinson-700.woff2, archivo-var.woff2 (asse wght + wdth)
+   ========================================================================== */
+
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("font/atkinson-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("font/atkinson-400i.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("font/atkinson-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("font/archivo-var.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+
+/* 1. Variabili ------------------------------------------------------------ */
+:root {
+  --carta: #f7f8f6;          /* piastrella */
+  --carta-2: #e9eeec;
+  --inchiostro: #0f2427;
+  --tenue: #4a5d60;          /* 6,6:1 */
+  --acqua: #0b5f60;          /* verde vasca profonda (7,3:1) */
+  --acqua-chiara: #d5e7e4;
+  --fondo: #0b3335;          /* testata e piede */
+  --su-fondo: #eef5f3;
+  --segnale: #c7432a;        /* rosso dei galleggianti, usato pochissimo */
+  --linea: #cfdad7;
+  --fuga: rgba(11,95,96,.06);
+  --evidenza: #f3d36b;
+
+  --testo-font: "Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+  --titoli-font: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --ui-font: "Atkinson Hyperlegible", Verdana, system-ui, sans-serif;
+
+  --base: 118.75%;           /* 19 px */
+  --colonna: 36rem;
+  --spazio: 1.25rem;
+  --onda-logo: #5cc8f0;      /* azzurro dell'onda nel logo, sulla testata scura (7,9:1 su --fondo) */
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --onda-logo: #6fd0f5;
+    --carta: #0b1517;
+    --carta-2: #12201f;
+    --inchiostro: #e2ecea;
+    --tenue: #9db3b1;
+    --acqua: #6cc9c2;
+    --acqua-chiara: #15302f;
+    --fondo: #051012;
+    --su-fondo: #e2ecea;
+    --segnale: #ff8b6e;
+    --linea: #233533;
+    --fuga: rgba(108,201,194,.05);
+  }
+}
+
+/* 2. Base ----------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: var(--base); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; color: var(--inchiostro); font-family: var(--testo-font); line-height: 1.6;
+  background-color: var(--carta);
+  background-image: linear-gradient(var(--fuga) 2px, transparent 2px), linear-gradient(90deg, var(--fuga) 2px, transparent 2px);
+  background-size: 48px 48px;
+}
+a { color: var(--acqua); text-underline-offset: .2em; text-decoration-thickness: 2px; }
+a:hover { text-decoration-color: var(--segnale); }
+img { max-width: 100%; height: auto; border-radius: 2px; }
+:focus-visible { outline: 3px solid var(--segnale); outline-offset: 3px; }
+::selection { background: var(--acqua-chiara); }
+h1, h2, h3 { font-family: var(--titoli-font); font-weight: 800; font-stretch: 88%; line-height: 1.05; letter-spacing: -.015em; text-wrap: balance; }
+h1 { font-size: clamp(2.4rem, 6vw, 3.8rem); margin: 0 0 .5rem; }
+
+.salta { position: absolute; left: -999px; }
+.salta:focus { left: 1rem; top: 1rem; background: var(--carta); color: var(--inchiostro); padding: .6rem 1rem; z-index: 10; }
+.contenitore { max-width: 64rem; margin: 0 auto; padding: 0 var(--spazio); }
+
+/* 3. Testata: la vasca ---------------------------------------------------- */
+.testata { background: var(--fondo); color: var(--su-fondo); padding: 1.6rem 0 1.4rem; }
+.testata .contenitore { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; }
+.marchio { text-decoration: none; color: inherit; display: block; }
+.marchio .nome { display: flex; align-items: center; gap: .6rem; font-family: var(--titoli-font); font-weight: 900; font-stretch: 80%; font-size: 2.3rem; text-transform: uppercase; letter-spacing: 0; line-height: .95; }
+.marchio .motto { display: block; font-size: .9rem; opacity: .85; margin-top: .3rem; }
+.marchio:hover .motto { opacity: 1; text-decoration: underline; }
+
+.logo { width: 2.2rem; height: 2.2rem; flex: none; }
+.logo-vasca { fill: none; stroke: currentColor; stroke-width: 2.6; }
+.logo-onda { fill: none; stroke: var(--onda-logo); stroke-width: 2.6; stroke-linecap: round; }
+
+.menu { display: flex; gap: .25rem; font-weight: 700; font-size: 1.15rem; }
+.menu a { color: inherit; text-decoration: none; padding: .55rem .9rem; min-height: 2.75rem; display: inline-flex; align-items: center; border-radius: 2px; }
+.menu a:hover { background: rgba(255,255,255,.1); }
+.menu a[aria-current='page'] { background: var(--su-fondo); color: var(--fondo); }
+
+/* Il separacorsie: galleggianti alternati */
+.onda {
+  height: 10px;
+  background:
+    repeating-linear-gradient(90deg, var(--segnale) 0 22px, var(--carta) 22px 24px, var(--su-fondo) 24px 46px, var(--carta) 46px 48px, var(--acqua) 48px 70px, var(--carta) 70px 72px);
+  border-bottom: 1px solid var(--linea);
+}
+@media (prefers-color-scheme: dark) { .onda { background: repeating-linear-gradient(90deg, var(--segnale) 0 22px, var(--carta) 22px 24px, #3c5a58 24px 46px, var(--carta) 46px 48px, var(--acqua) 48px 70px, var(--carta) 70px 72px); } }
+
+.principale { padding: 3rem 0 4.5rem; }
+
+/* 4. Intestazioni di pagina ----------------------------------------------- */
+.intestazione { margin-bottom: 2.2rem; }
+.intro { font-size: 1.05rem; color: var(--tenue); margin: .5rem 0 0; max-width: var(--colonna); }
+.sopratitolo { font-weight: 700; font-size: .85rem; margin: 0 0 .4rem; text-transform: uppercase; letter-spacing: .08em; }
+.sopratitolo a { color: var(--acqua); text-decoration: none; }
+.sopratitolo a::before { content: "‹ "; }
+
+.meta { font-size: .85rem; color: var(--tenue); margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .7rem; }
+.meta > time + span:not(.bozza)::before,
+.meta > span + span:not(.bozza)::before { content: "•"; margin-right: .7rem; color: var(--segnale); }
+
+/* 5. Home ----------------------------------------------------------------- */
+.presentazione { font-family: var(--titoli-font); font-weight: 500; font-stretch: 95%; font-size: 1rem; line-height: 1.6; max-width: none; margin: 0 0 3.5rem; letter-spacing: -.01em; }
+.sezione { margin-bottom: 4rem; }
+/* La linea di corsia sul fondo con la T finale */
+.etichetta { position: relative; font-family: var(--titoli-font); font-weight: 800; font-stretch: 85%; font-size: 1rem; letter-spacing: .1em; text-transform: uppercase; color: var(--acqua); margin: 0 0 .6rem; padding-bottom: .7rem;
+  background: linear-gradient(var(--acqua), var(--acqua)) left bottom / calc(100% - 4px) 6px no-repeat; }
+.etichetta::after { content: ""; position: absolute; right: 0; bottom: -10px; width: 6px; height: 26px; background: var(--acqua); }
+.altro { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; margin-top: 1rem; font-weight: 700; padding: .5rem 1.1rem; border: 2px solid var(--acqua); border-radius: 2px; text-decoration: none; }
+.altro::after { content: "→"; }
+.altro:hover { background: var(--acqua); color: var(--carta); }
+
+/* 6. Elenchi: registro a due colonne (data e categoria a sinistra) ------- */
+.voce { display: grid; grid-template-columns: 10rem minmax(0, 1fr); column-gap: 1.6rem; padding: 1.3rem 0; border-bottom: 1px solid var(--linea); }
+.voce > * { grid-column: 2; }
+.voce > .meta { grid-column: 1; grid-row: 1 / span 4; flex-direction: column; align-items: flex-start; gap: .45rem; padding-top: .4rem; font-weight: 700; }
+.voce > .meta > *::before { display: none; }
+.voce > .meta .chip { background: none; color: var(--acqua); border: 2px solid currentColor; padding: .05rem .45rem; font-size: .76rem; line-height: 1.45; }
+.voce > .meta a.chip:hover { background: var(--acqua-chiara); box-shadow: none; }
+.voce:last-child { border-bottom: 0; }
+.voce-titolo { margin: 0 0 .4rem; font-size: 1.5rem; max-width: 40rem; }
+.voce-titolo a { color: inherit; text-decoration: none; }
+.voce-titolo a:hover { color: var(--acqua); text-decoration: underline; text-decoration-color: var(--segnale); }
+.voce-estratto { margin: 0; max-width: var(--colonna); }
+.voce-articolo .voce-titolo { font-size: 1.8rem; }
+.voce-articolo .voce-estratto { color: var(--tenue); }
+.voce-immagine { grid-column: 2; display: block; width: 100%; aspect-ratio: 16 / 8; object-fit: cover; margin: 0 0 .9rem; }
+
+/* 7. Categorie ------------------------------------------------------------ */
+.categorie { margin: 0 0 2rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.chip { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; font-weight: 700; padding: .1rem .55rem; border-radius: 2px; background: var(--acqua-chiara); color: var(--inchiostro); text-decoration: none; }
+.chips .chip { font-size: .92rem; padding: .55rem .9rem; min-height: 2.75rem; }
+a.chip:hover { box-shadow: inset 0 0 0 2px var(--acqua); }
+.chip[aria-current='page'] { background: var(--acqua); color: var(--carta); }
+.chip .conteggio { font-weight: 400; opacity: .8; }
+.chip .conteggio::before { content: "("; }
+.chip .conteggio::after { content: ")"; }
+
+/* 8. Pensiero, articolo, pagina ------------------------------------------- */
+.scheda .intestazione h1 { margin-top: .7rem; max-width: 18ch; }
+.scheda-pensiero .intestazione h1 { font-size: clamp(2.1rem, 5vw, 3rem); max-width: 22ch; }
+.sommario { font-size: 1.25rem; line-height: 1.45; color: var(--tenue); margin: .9rem 0 0; max-width: 38rem; }
+.copertina { margin: 0 0 2.4rem; }
+.copertina img { display: block; width: 100%; }
+.copertina figcaption, .testo figcaption { font-size: .85rem; color: var(--tenue); margin-top: .6rem; padding-left: .8rem; border-left: 3px solid var(--segnale); }
+
+.testo { max-width: var(--colonna); font-size: 1rem; }
+.testo h2 { font-size: 1.75rem; margin: 2.8rem 0 .7rem; }
+.testo h2::before { content: ""; display: block; width: 2.5rem; height: 6px; background: var(--acqua); margin-bottom: .8rem; }
+.testo h3 { font-size: 1.3rem; margin: 2rem 0 .5rem; }
+.testo p, .testo ul, .testo ol { margin: 0 0 1.2rem; }
+.testo li { margin-bottom: .35rem; padding-left: .2rem; }
+.testo ol li::marker { font-weight: 700; color: var(--acqua); }
+.testo ul li::marker { color: var(--segnale); }
+.testo blockquote { margin: 2.2rem 0; padding: 1.3rem 1.5rem; background: var(--fondo); color: var(--su-fondo); border-radius: 2px; font-family: var(--titoli-font); font-weight: 700; font-stretch: 90%; font-size: 1.5rem; line-height: 1.25; }
+.testo blockquote p { margin: 0; }
+.testo table { border-collapse: collapse; width: 100%; margin: 1.8rem 0; display: block; overflow-x: auto; font-size: .92rem; font-variant-numeric: tabular-nums; }
+.testo th, .testo td { padding: .6rem .9rem; text-align: left; vertical-align: top; }
+.testo th { background: var(--acqua); color: var(--carta); font-weight: 700; }
+.testo tbody tr:nth-child(even) td { background: var(--acqua-chiara); }
+.testo td { border-bottom: 1px solid var(--linea); }
+.testo figure { margin: 2rem 0; }
+.testo hr { border: 0; height: 6px; margin: 2.6rem 0; background: linear-gradient(var(--linea), var(--linea)) left center / 100% 2px no-repeat; }
+.testo code { font-family: ui-monospace, "Cascadia Mono", Menlo, monospace; font-size: .88em; background: var(--carta-2); padding: .08em .35em; border-radius: 2px; }
+
+.navigazione { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 3.5rem; }
+.navigazione > a { display: block; padding: 1rem 1.2rem; border: 2px solid var(--linea); border-radius: 2px; text-decoration: none; color: var(--inchiostro); font-family: var(--titoli-font); font-weight: 700; font-stretch: 92%; font-size: 1.15rem; line-height: 1.25; }
+.navigazione > a:hover { border-color: var(--acqua); }
+.navigazione .succ { text-align: right; grid-column: 2; }
+.navigazione .dir { display: block; font-family: var(--ui-font); font-weight: 700; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--acqua); margin-bottom: .3rem; }
+.navigazione .prec .dir::before { content: "← "; }
+.navigazione .succ .dir::after { content: " →"; }
+
+/* 9. Stati ---------------------------------------------------------------- */
+.bozza { font-size: .75rem; font-weight: 700; background: var(--evidenza); color: #3a2e00; padding: .05rem .45rem; border-radius: 2px; }
+.vuoto { color: var(--tenue); font-style: italic; }
+
+/* 10. Piede --------------------------------------------------------------- */
+.piede { background: var(--fondo); color: var(--su-fondo); padding: 1.8rem 0 2.6rem; font-size: .88rem; }
+.piede p { margin: .3rem 0; opacity: .9; }
+.piede a { color: inherit; }
+.piede a:hover { text-decoration-color: var(--segnale); }
+
+/* 11. Telefono e stampa ---------------------------------------------------- */
+@media (max-width: 40rem) {
+  .voce { grid-template-columns: minmax(0, 1fr); }
+  .voce > *, .voce > .meta { grid-column: 1; grid-row: auto; }
+  .voce > .meta { flex-direction: row; flex-wrap: wrap; padding-top: 0; margin-bottom: .35rem; }
+  .voce-immagine { grid-column: 1; grid-row: 1; }
+  :root { --spazio: 1.1rem; }
+  .testata { padding: 1.2rem 0 .6rem; }
+  .marchio .nome { font-size: 2rem; }
+  .menu { width: calc(100% + 1.8rem); margin: 0 -.9rem; }
+  .menu a { flex: 1; justify-content: center; padding: .55rem .4rem; }
+  /* 4 voci nel menu (Di famiglia, 15/11/2026): una riga sola anche sui telefoni stretti */
+  .menu a { white-space: nowrap; flex: 1 1 auto; padding: .55rem .3rem; font-size: 1rem; }
+  .voce-titolo, .voce-articolo .voce-titolo { font-size: 1.4rem; }
+  .navigazione { grid-template-columns: 1fr; }
+  .navigazione .succ { grid-column: 1; }
+  .navigazione span:empty { display: none; }
+}
+@media print {
+  .menu, .onda, .piede, .navigazione, .categorie, .salta { display: none; }
+  body, .testata { background: #fff; color: #000; font-size: 11pt; }
+  .testo blockquote { background: none; color: #000; border-left: 4pt solid #000; }
+  .testo a::after { content: " (" attr(href) ")"; font-size: .85em; }
+}
+
+/* Telefono: il simbolo chiaro/scuro chiude il menu senza uscire dallo schermo */
+@media (max-width: 40rem) {
+  .menu .interruttore-tema { margin: 0 .9rem 0 .2rem; }
+}
+/* Telefoni molto stretti (sotto ~384 px): 4 voci su due righe da due, il simbolo a destra su tutte e due */
+@media (max-width: 24rem) {
+  .menu { display: grid; grid-template-columns: 1fr 1fr auto; gap: .25rem; align-items: center; }
+  .menu a { justify-content: center; }
+  .menu .interruttore-tema { grid-column: 3; grid-row: 1 / span 2; }
+}
+
+/* Testata (15/11/2026): menu e simbolo chiaro/scuro con la base sulla stessa riga di «BORDO VASCA» */
+.testata .contenitore { align-items: baseline; }
+.marchio .nome-testo { align-self: baseline; }
+.menu { align-items: baseline; }
+.menu .interruttore-tema { align-self: baseline; }

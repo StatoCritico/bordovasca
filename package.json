@@ -1,0 +1,24 @@
+{
+  "name": "bordovasca",
+  "version": "1.0.0",
+  "description": "Bordo Vasca \u2013 pensieri e articoli sul mondo delle piscine",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "anteprima": "node design/genera_anteprima.mjs",
+    "simulazione": "node design/genera_anteprima.mjs --reali"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.5",
+    "astro": "^7.4.12"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.23"
+  }
+}

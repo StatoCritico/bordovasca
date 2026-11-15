@@ -1,0 +1,18 @@
+---
+import { dataEstesa, dataIso, estratto, minutiLettura, nomeCategoria, type Articolo } from '../lib/contenuti';
+interface Props { articolo: Articolo }
+const { articolo: a } = Astro.props;
+const nomeCat = await nomeCategoria(a.data.categoria);
+---
+<article class={`voce voce-articolo${a.data.immagine ? ' con-immagine' : ''}`}>
+  {a.data.immagine && <img class="voce-immagine" src={a.data.immagine} alt="" loading="lazy" />}
+  <p class="meta">
+    <time datetime={dataIso(a.data.data)}>{dataEstesa(a.data.data)}</time>
+    <a class="chip" href={`/articoli/categoria/${a.data.categoria}/`}>{nomeCat}</a>
+    <span class="lettura">{minutiLettura(a.body)} min di lettura</span>
+    {a.data.bozza && <span class="bozza">bozza</span>}
+  </p>
+  {a.data.serie && <p class="serie">{a.data.serie}</p>}
+  <h3 class="voce-titolo"><a href={`/articoli/${a.id}/`}>{a.data.titolo}</a></h3>
+  <p class="voce-estratto">{a.data.sommario || estratto(a.body)}</p>
+</article>

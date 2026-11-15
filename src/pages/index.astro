@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import VocePensiero from '../components/VocePensiero.astro';
+import VoceArticolo from '../components/VoceArticolo.astro';
+import { pensieri, articoli, impostazioni, CATEGORIA_FAMIGLIA } from '../lib/contenuti';
+const sito = await impostazioni();
+// I testi «Di famiglia» hanno una voce propria nel menu e non compaiono nella pagina iniziale.
+const ps = (await pensieri()).filter((p) => p.data.categoria !== CATEGORIA_FAMIGLIA).slice(0, 5);
+const as = (await articoli()).filter((a) => a.data.categoria !== CATEGORIA_FAMIGLIA).slice(0, 3);
+---
+<Base pagina="home">
+  <p class="presentazione">{sito.presentazione}</p>
+
+  <section class="sezione sezione-pensieri" aria-labelledby="t-pensieri">
+    <h2 class="etichetta" id="t-pensieri">Ultimi pensieri</h2>
+    {ps.length
+      ? <div class="elenco elenco-pensieri">{ps.map((p) => <VocePensiero pensiero={p} />)}</div>
+      : <p class="vuoto">Il primo pensiero arriva presto.</p>}
+    {ps.length > 0 && <a class="altro" href="/pensieri/">Tutti i pensieri</a>}
+  </section>
+
+  <section class="sezione sezione-articoli" aria-labelledby="t-articoli">
+    <h2 class="etichetta" id="t-articoli">Articoli</h2>
+    {as.length
+      ? <div class="elenco elenco-articoli">{as.map((a) => <VoceArticolo articolo={a} />)}</div>
+      : <p class="vuoto">Il primo articolo è in preparazione.</p>}
+    {as.length > 0 && <a class="altro" href="/articoli/">Tutti gli articoli</a>}
+  </section>
+</Base>
