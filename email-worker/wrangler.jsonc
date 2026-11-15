@@ -6,6 +6,8 @@
   "compatibility_date": "2026-11-01",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
+  // Cloudflare Images: riduce le foto allegate a 1600 px prima di salvarle (e converte le HEIC degli iPhone in JPEG)
+  "images": { "binding": "IMAGES" },
   "vars": {
     "GITHUB_REPO": "StatoCritico/bordovasca",
     "GITHUB_BRANCH": "main",

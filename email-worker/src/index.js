@@ -18,6 +18,7 @@ import {
   pulisciTesto,
   slug,
   collocaImmagini,
+  LATO_MAX,
 } from './elabora.js';
 
 const CARTELLA_PENSIERI = 'src/content/pensieri';
@@ -82,7 +83,9 @@ async function pubblica(email, oggetto, env) {
   const file = [];
   const immagini = [];
   const usati = [...immaginiEsistenti];
-  for (const [i, a] of immaginiDaPubblicare(email.attachments).entries()) {
+  for (const [i, originale] of immaginiDaPubblicare(email.attachments, { riduzione: Boolean(env.IMAGES) }).entries()) {
+    const a = await riduci(env, originale);
+    if (!a) continue; // HEIC non convertibile: la saltiamo invece di fermare tutto
     const nome = nomeLibero(`${id}-${i + 1}`, usati, `.${a.estensione}`);
     usati.push(nome);
     file.push({ percorso: `${CARTELLA_IMMAGINI}/${nome}`, base64: inBase64(a.content) });
@@ -101,6 +104,32 @@ async function pubblica(email, oggetto, env) {
   await gh.commit(`Pensiero via email: ${o.titolo}`, file);
   return { ...o, id, immagini: immagini.length, categoriaCreata: Boolean(o.categoriaNuova) };
 }
+
+/**
+ * Riduce la foto a 1600 px sul lato lungo (senza ingrandire le piccole) con Cloudflare Images:
+ * JPEG qualità 85, PNG resta PNG, le GIF restano com'erano (animazioni). Le HEIC degli iPhone diventano JPEG.
+ * Senza il binding IMAGES, o se la riduzione non riesce, si pubblica l'originale (le HEIC no: il browser non le mostra).
+ */
+async function riduci(env, a) {
+  if (!env.IMAGES || a.estensione === 'gif') return a;
+  const png = a.estensione === 'png';
+  try {
+    const flusso = new Response(a.content).body;
+    const risultato = await env.IMAGES.input(flusso)
+      .transform({ width: LATO_MAX, height: LATO_MAX, fit: 'scale-down' })
+      .output({ format: png ? 'image/png' : 'image/jpeg', quality: 85 });
+    const ridotta = await risultato.response().arrayBuffer();
+    if (!ridotta.byteLength) throw new Error('immagine vuota');
+    // Se per caso la «ridotta» pesa di più (foto già piccola e compressa), teniamo l'originale.
+    if (a.estensione !== 'heic' && ridotta.byteLength >= dimensioneDi(a.content)) return a;
+    return { ...a, content: ridotta, estensione: png ? 'png' : 'jpg' };
+  } catch (errore) {
+    console.error('Riduzione non riuscita, uso l\'originale:', errore);
+    return a.estensione === 'heic' ? null : a;
+  }
+}
+
+const dimensioneDi = (c) => (typeof c === 'string' ? c.length : c?.byteLength ?? 0);
 
 function conFoto(testo, immagini) {
   const { testo: t, restanti } = collocaImmagini(testo, immagini);

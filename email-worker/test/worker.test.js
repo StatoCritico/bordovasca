@@ -5,10 +5,10 @@ import worker from '../src/index.js';
 
 const PAPA = 'papa@example.com';
 const ENV = { GITHUB_TOKEN: 'finto', GITHUB_REPO: 'statocritico/bordovasca', GITHUB_BRANCH: 'main', MITTENTI_AUTORIZZATI: PAPA, SITO: 'https://bordovasca.statocritico.it', INOLTRO_ERRORI: 'paolo@example.com' };
-let chiamate, alberi, guasto;
+let chiamate, alberi, guasto, blobs;
 
 beforeEach(() => {
-  chiamate = []; alberi = []; guasto = false;
+  chiamate = []; alberi = []; guasto = false; blobs = [];
   // Come su Cloudflare: fetch chiamata come metodo di un altro oggetto dà «Illegal invocation».
   const finto = async (url, init = {}) => {
     const p = new URL(url).pathname.replace('/repos/statocritico/bordovasca', '');
@@ -21,7 +21,7 @@ beforeEach(() => {
     if (p === '/contents/public/media/pensieri') return json([], 404);
     if (p === '/git/ref/heads/main') return json({ object: { sha: 'aaa' } });
     if (p === '/git/commits/aaa') return json({ tree: { sha: 'ttt' } });
-    if (p === '/git/blobs') return json({ sha: 'blob1' }, 201);
+    if (p === '/git/blobs') { blobs.push(JSON.parse(init.body).content); return json({ sha: 'blob1' }, 201); }
     if (p === '/git/trees') { alberi.push(JSON.parse(init.body)); return json({ sha: 'tree2' }, 201); }
     if (p === '/git/commits') return json({ sha: 'ccc' }, 201);
     if (p === '/git/refs/heads/main') return json({}, 200);
@@ -33,11 +33,11 @@ beforeEach(() => {
   };
 });
 
-function email({ da = PAPA, oggetto, corpo, allegato = false }) {
+function email({ da = PAPA, oggetto, corpo, allegato = false, tipo = 'image/jpeg', nomeFile = 'foto.jpg' }) {
   const confine = 'XYZ';
   const parti = allegato
     ? [`--${confine}`, 'Content-Type: text/plain; charset=utf-8', '', corpo, `--${confine}`,
-       'Content-Type: image/jpeg', 'Content-Disposition: attachment; filename="foto.jpg"', 'Content-Transfer-Encoding: base64', '', Buffer.from('JPEGFINTO').toString('base64'), `--${confine}--`]
+       `Content-Type: ${tipo}`, `Content-Disposition: attachment; filename="${nomeFile}"`, 'Content-Transfer-Encoding: base64', '', Buffer.from('JPEGFINTO').toString('base64'), `--${confine}--`]
     : null;
   const testo = [
     `From: Papà <${da}>`, 'To: bordovasca-segreto@statocritico.it', `Subject: =?utf-8?B?${Buffer.from(oggetto).toString('base64')}?=`,
@@ -93,4 +93,46 @@ test('se GitHub non risponde: avvisa il mittente e inoltra a Paolo', async () =>
   await worker.email(m, ENV, {});
   assert.equal(m.risposte.length, 1);
   assert.deepEqual(m.inoltri, ['paolo@example.com']);
+});
+
+// Cloudflare Images finto: registra le richieste e restituisce «RIDOTTA»
+function immaginiFinte(registro) {
+  return {
+    input(flusso) {
+      const passi = [];
+      const h = {
+        transform(o) { passi.push(o); return h; },
+        async output(o) {
+          registro.push({ passi, output: o, byte: (await new Response(flusso).arrayBuffer()).byteLength });
+          return { response: () => new Response('RIDOTTA') };
+        },
+      };
+      return h;
+    },
+  };
+}
+
+test('con Cloudflare Images le foto vengono ridotte a 1600 px', async () => {
+  const registro = [];
+  const m = email({ oggetto: 'Varie - Foto grande', corpo: 'Testo.', allegato: true });
+  await worker.email(m, { ...ENV, IMAGES: immaginiFinte(registro) }, {});
+  assert.equal(registro.length, 1);
+  assert.deepEqual(registro[0].passi[0], { width: 1600, height: 1600, fit: 'scale-down' });
+  assert.equal(registro[0].output.format, 'image/jpeg');
+  assert.equal(Buffer.from(blobs[0], 'base64').toString(), 'RIDOTTA');
+});
+
+test('le foto HEIC degli iPhone diventano JPEG', async () => {
+  const registro = [];
+  const m = email({ oggetto: 'Varie - iPhone', corpo: 'Testo.', allegato: true, tipo: 'image/heic', nomeFile: 'IMG_0001.HEIC' });
+  await worker.email(m, { ...ENV, IMAGES: immaginiFinte(registro) }, {});
+  const voci = alberi[0].tree.map((v) => v.path);
+  assert.ok(voci.some((p) => /-1\.jpg$/.test(p)));
+  assert.equal(registro[0].output.format, 'image/jpeg');
+});
+
+test('senza Cloudflare Images le HEIC sono ignorate e le altre foto restano originali', async () => {
+  const m = email({ oggetto: 'Varie - iPhone', corpo: 'Testo.', allegato: true, tipo: 'image/heic', nomeFile: 'IMG_0001.HEIC' });
+  await worker.email(m, ENV, {});
+  assert.ok(!alberi[0].tree.some((v) => /heic|jpg$/i.test(v.path)));
 });

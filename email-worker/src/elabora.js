@@ -111,12 +111,16 @@ export function nomeLibero(base, esistenti, estensione = '.md') {
 const ESTENSIONI = { 'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/heic': 'heic' };
 export const MAX_IMMAGINI = 6;
 export const MAX_BYTE_IMMAGINE = 10 * 1024 * 1024;
+/** Con la riduzione (Cloudflare Images) si accettano foto più grandi e anche le HEIC degli iPhone. */
+export const MAX_BYTE_DA_RIDURRE = 20 * 1024 * 1024;
+export const LATO_MAX = 1600;
 
 /** Sceglie le immagini allegate da pubblicare (le altre vengono ignorate). */
-export function immaginiDaPubblicare(allegati) {
+export function immaginiDaPubblicare(allegati, { riduzione = false } = {}) {
+  const max = riduzione ? MAX_BYTE_DA_RIDURRE : MAX_BYTE_IMMAGINE;
   return (allegati ?? [])
-    .filter((a) => ESTENSIONI[String(a.mimeType).toLowerCase()] && ESTENSIONI[String(a.mimeType).toLowerCase()] !== 'heic')
-    .filter((a) => dimensione(a.content) > 0 && dimensione(a.content) <= MAX_BYTE_IMMAGINE)
+    .filter((a) => ESTENSIONI[String(a.mimeType).toLowerCase()] && (riduzione || ESTENSIONI[String(a.mimeType).toLowerCase()] !== 'heic'))
+    .filter((a) => dimensione(a.content) > 0 && dimensione(a.content) <= max)
     .slice(0, MAX_IMMAGINI)
     .map((a) => ({ ...a, estensione: ESTENSIONI[String(a.mimeType).toLowerCase()] }));
 }
