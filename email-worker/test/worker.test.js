@@ -9,7 +9,8 @@ let chiamate, alberi, guasto;
 
 beforeEach(() => {
   chiamate = []; alberi = []; guasto = false;
-  globalThis.fetch = async (url, init = {}) => {
+  // Come su Cloudflare: fetch chiamata come metodo di un altro oggetto dà «Illegal invocation».
+  const finto = async (url, init = {}) => {
     const p = new URL(url).pathname.replace('/repos/statocritico/bordovasca', '');
     const metodo = init.method ?? 'GET';
     chiamate.push(`${metodo} ${p}`);
@@ -25,6 +26,10 @@ beforeEach(() => {
     if (p === '/git/commits') return json({ sha: 'ccc' }, 201);
     if (p === '/git/refs/heads/main') return json({}, 200);
     return json({ message: 'non previsto ' + p }, 500);
+  };
+  globalThis.fetch = function (url, init) {
+    if (this !== undefined && this !== globalThis) throw new TypeError('Illegal invocation');
+    return finto(url, init);
   };
 });
 

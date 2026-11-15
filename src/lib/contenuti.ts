@@ -75,11 +75,20 @@ export function minutiLettura(testo = '') {
   return Math.max(1, Math.round(parole / 200));
 }
 
+/** Prima immagine del testo (Markdown ![](...) o HTML <img>), per la miniatura negli elenchi. */
+export function primaImmagine(testo = ''): string | undefined {
+  const md = testo.match(/!\[[^\]]*\]\(\s*([^)\s]+)/);
+  if (md) return md[1];
+  const html = testo.match(/<img[^>]+src="([^"]+)"/i);
+  return html?.[1];
+}
+
 /** Prime righe del testo, senza formattazione, per anteprime e descrizioni. */
 export function estratto(testo = '', lunghezza = 180) {
   const pulito = testo
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[image: [^\]]*\]/gi, '')
     .replace(/<[^>]+>/g, '')
     .replace(/[#*_>`]/g, '')
     .replace(/\s+/g, ' ')

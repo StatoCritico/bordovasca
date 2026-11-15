@@ -2,13 +2,15 @@
 const API = 'https://api.github.com';
 
 export class GitHub {
-  constructor({ token, repo, ramo = 'main', fetchFn = fetch }) {
+  constructor({ token, repo, ramo = 'main', fetchFn }) {
     if (!token) throw new Error('Manca il segreto GITHUB_TOKEN');
     if (!/^[\w.-]+\/[\w.-]+$/.test(repo ?? '')) throw new Error('GITHUB_REPO deve essere «proprietario/nome»');
     this.token = token;
     this.repo = repo;
     this.ramo = ramo;
-    this.fetch = fetchFn;
+    // Su Cloudflare fetch va chiamata come funzione libera: salvata come metodo (this.fetch = fetch) dà
+    // «Illegal invocation». La avvolgiamo in una funzione freccia.
+    this.fetch = fetchFn ?? ((...argomenti) => fetch(...argomenti));
   }
 
   async chiama(metodo, percorso, corpo) {

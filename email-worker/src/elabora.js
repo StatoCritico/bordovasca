@@ -123,6 +123,29 @@ export function immaginiDaPubblicare(allegati) {
 
 const dimensione = (c) => (typeof c === 'string' ? c.length : c?.byteLength ?? 0);
 
+/**
+ * Gmail mette nel testo semplice un segnaposto «[image: NOME.JPG]» dove c'era la foto.
+ * Lo sostituiamo con la foto stessa; le foto senza segnaposto vanno in fondo.
+ * @param {string} testo
+ * @param {{ nome?: string, url: string }[]} immagini
+ * @returns {{ testo: string, restanti: { url: string }[] }}
+ */
+export function collocaImmagini(testo, immagini) {
+  const usate = new Set();
+  const nuovo = String(testo ?? '').replace(/\[image:\s*([^\]]*)\]/gi, (_, nome) => {
+    const n = nome.trim().toLowerCase();
+    const i = immagini.findIndex((im, k) => !usate.has(k) && (im.nome ?? '').toLowerCase() === n);
+    const k = i >= 0 ? i : immagini.findIndex((_, k2) => !usate.has(k2));
+    if (k < 0) return '';
+    usate.add(k);
+    return `\n\n![](${immagini[k].url})\n\n`;
+  });
+  return {
+    testo: nuovo.replace(/\n{3,}/g, '\n\n').trim(),
+    restanti: immagini.filter((_, k) => !usate.has(k)),
+  };
+}
+
 /** Testo del file del pensiero, con l'intestazione (frontmatter) letta dal sito e dall'editor. */
 export function fileDelPensiero({ titolo, data, categoria, bozza, testo, immagini = [] }) {
   const righe = [

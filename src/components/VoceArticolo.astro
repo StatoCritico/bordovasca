@@ -1,11 +1,12 @@
 ---
-import { dataEstesa, dataIso, estratto, minutiLettura, nomeCategoria, type Articolo } from '../lib/contenuti';
+import { dataEstesa, dataIso, estratto, minutiLettura, nomeCategoria, primaImmagine, type Articolo } from '../lib/contenuti';
 interface Props { articolo: Articolo }
 const { articolo: a } = Astro.props;
 const nomeCat = await nomeCategoria(a.data.categoria);
+const miniatura = a.data.immagine || primaImmagine(a.body);
 ---
-<article class={`voce voce-articolo${a.data.immagine ? ' con-immagine' : ''}`}>
-  {a.data.immagine && <img class="voce-immagine" src={a.data.immagine} alt="" loading="lazy" />}
+<article class={`voce voce-articolo${miniatura ? ' con-immagine' : ''}`}>
+  {miniatura && <a class="voce-miniatura" href={`/articoli/${a.id}/`} tabindex="-1" aria-hidden="true"><img src={miniatura} alt="" loading="lazy" /></a>}
   <p class="meta">
     <time datetime={dataIso(a.data.data)}>{dataEstesa(a.data.data)}</time>
     <a class="chip" href={`/articoli/categoria/${a.data.categoria}/`}>{nomeCat}</a>

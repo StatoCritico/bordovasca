@@ -227,7 +227,7 @@ a.chip:hover { box-shadow: inset 0 0 0 2px var(--acqua); }
   .menu .interruttore-tema { margin: 0 .9rem 0 .2rem; }
 }
 /* Telefoni molto stretti (sotto ~384 px): 4 voci su due righe da due, il simbolo a destra su tutte e due */
-@media (max-width: 24rem) {
+@media (max-width: 26.5rem) {
   .menu { display: grid; grid-template-columns: 1fr 1fr auto; gap: .25rem; align-items: center; }
   .menu a { justify-content: center; }
   .menu .interruttore-tema { grid-column: 3; grid-row: 1 / span 2; }
@@ -238,3 +238,19 @@ a.chip:hover { box-shadow: inset 0 0 0 2px var(--acqua); }
 .marchio .nome-testo { align-self: baseline; }
 .menu { align-items: baseline; }
 .menu .interruttore-tema { align-self: baseline; }
+
+/* Miniatura negli elenchi (15/11/2026): piccolo riquadro tra la colonna della data e quella del titolo */
+.voce.con-immagine { grid-template-columns: 10rem 7.5rem minmax(0, 1fr); }
+.voce.con-immagine > * { grid-column: 3; }
+.voce.con-immagine > .meta { grid-column: 1; }
+.voce-miniatura { grid-column: 2; grid-row: 1 / span 4; align-self: start; display: block; margin-top: .4rem; line-height: 0; }
+.voce.con-immagine > .voce-miniatura { grid-column: 2; }
+.voce-miniatura img { width: 7.5rem; height: 7.5rem; object-fit: cover; border-radius: 2px; border: 1px solid var(--linea); }
+.voce-miniatura:hover img { border-color: var(--acqua); }
+@media (max-width: 40rem) {
+  .voce.con-immagine { grid-template-columns: 5.5rem minmax(0, 1fr); column-gap: 1rem; }
+  .voce.con-immagine > .meta { grid-column: 1 / -1; grid-row: auto; }
+  .voce.con-immagine > * { grid-column: 2; }
+  .voce.con-immagine > .voce-miniatura { grid-column: 1; grid-row: 2 / span 3; margin-top: .2rem; }
+  .voce-miniatura img { width: 5.5rem; height: 5.5rem; }
+}

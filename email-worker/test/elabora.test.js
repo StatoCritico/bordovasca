@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  leggiOggetto, trovaCategoria, pulisciTesto, daHtml, nomeLibero, fileDelPensiero,
+  leggiOggetto, trovaCategoria, collocaImmagini, pulisciTesto, daHtml, nomeLibero, fileDelPensiero,
   mittenteAutorizzato, autenticazioneFallita, immaginiDaPubblicare, oggiRoma, slug,
 } from '../src/elabora.js';
 import { idCategoria } from '../../src/lib/slug.js';
@@ -89,4 +89,15 @@ test('immagini: solo formati web e non troppo grandi', () => {
   ]);
   assert.equal(sel.length, 1);
   assert.equal(sel[0].estensione, 'jpg');
+});
+
+test('segnaposto delle foto di Gmail', () => {
+  const r = collocaImmagini('[image: DSCN9087.JPG]\nTesto.\n[image: altra.png]', [
+    { nome: 'DSCN9087.JPG', url: '/media/pensieri/a-1.jpg' },
+    { nome: 'altra.png', url: '/media/pensieri/a-2.png' },
+    { nome: 'terza.jpg', url: '/media/pensieri/a-3.jpg' },
+  ]);
+  assert.equal(r.testo, '![](/media/pensieri/a-1.jpg)\n\nTesto.\n\n![](/media/pensieri/a-2.png)');
+  assert.deepEqual(r.restanti.map((x) => x.url), ['/media/pensieri/a-3.jpg']);
+  assert.equal(collocaImmagini('[image: x.jpg] ciao', []).testo, 'ciao');
 });

@@ -17,6 +17,7 @@ import {
   oggiRoma,
   pulisciTesto,
   slug,
+  collocaImmagini,
 } from './elabora.js';
 
 const CARTELLA_PENSIERI = 'src/content/pensieri';
@@ -85,7 +86,7 @@ async function pubblica(email, oggetto, env) {
     const nome = nomeLibero(`${id}-${i + 1}`, usati, `.${a.estensione}`);
     usati.push(nome);
     file.push({ percorso: `${CARTELLA_IMMAGINI}/${nome}`, base64: inBase64(a.content) });
-    immagini.push({ url: `/media/pensieri/${nome}` });
+    immagini.push({ nome: a.filename ?? '', url: `/media/pensieri/${nome}` });
   }
   if (!testo && immagini.length === 0) throw new Error('Email senza testo');
 
@@ -94,11 +95,16 @@ async function pubblica(email, oggetto, env) {
   }
   file.push({
     percorso: `${CARTELLA_PENSIERI}/${nomeFile}`,
-    testo: fileDelPensiero({ titolo: o.titolo, data, categoria: o.categoria, bozza: o.bozza, testo, immagini }),
+    testo: fileDelPensiero({ titolo: o.titolo, data, categoria: o.categoria, bozza: o.bozza, ...conFoto(testo, immagini) }),
   });
 
   await gh.commit(`Pensiero via email: ${o.titolo}`, file);
   return { ...o, id, immagini: immagini.length, categoriaCreata: Boolean(o.categoriaNuova) };
+}
+
+function conFoto(testo, immagini) {
+  const { testo: t, restanti } = collocaImmagini(testo, immagini);
+  return { testo: t, immagini: restanti };
 }
 
 function testoConferma(esito, env) {
