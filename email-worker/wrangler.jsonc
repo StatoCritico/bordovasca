@@ -1,0 +1,18 @@
+// Worker che riceve le email di Bordo Vasca (Cloudflare Email Routing → «Send to a Worker»).
+// È in formato .jsonc come quello del sito (../wrangler.jsonc): con formati diversi wrangler prenderebbe quello del sito.
+{
+  "name": "bordovasca-email",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "vars": {
+    "GITHUB_REPO": "StatoCritico/bordovasca",
+    "GITHUB_BRANCH": "main",
+    "SITO": "https://bordovasca.statocritico.it"
+  }
+  // Da impostare come SEGRETI (mai qui), con «npx wrangler secret put NOME»:
+  //   GITHUB_TOKEN          token GitHub fine-grained, solo repository bordovasca, permesso Contents: Read and write
+  //   MITTENTI_AUTORIZZATI  indirizzi che possono pubblicare, separati da virgola
+  //   INOLTRO_ERRORI        (facoltativo) indirizzo verificato in Email Routing a cui inoltrare le email non pubblicate
+}
